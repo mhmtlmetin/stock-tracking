@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using StockTracking.Application.Interfaces;
+using StockTracking.Infrastructure.Context;
 using StockTracking.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,10 @@ namespace StockTracking.Infrastructure
         //Burada Infrastructure katmanına ait servisler eklenir.
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
+            services.AddDbContext<StockTrackingDbContext>(options =>
+            {
+                options.UseInMemoryDatabase("StockTrackingDb");
+            });
             services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
             return services;
         }
