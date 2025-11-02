@@ -20,6 +20,12 @@ namespace StockTracking.Infrastructure
 
             services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
             services.AddScoped(typeof(IRepository<>),typeof(Repository<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IStoreRepository, StoreRepository>();
+            services.AddScoped<IStoreStockRepository, StoreStockRepository>();
+            services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+            services.AddScoped<IStockItemRepository, StockItemRepository>();
             return services;
         }
     }

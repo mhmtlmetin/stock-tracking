@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StockTracking.Infrastructure.Repositories
 {
-    // Repository<StockItem>'dan miras alır ve IStockItemRepository arayüzünü uygular
     public class StockItemRepository : Repository<StockItem>, IStockItemRepository
     {
         public StockItemRepository(StockTrackingDbContext context) : base(context)
