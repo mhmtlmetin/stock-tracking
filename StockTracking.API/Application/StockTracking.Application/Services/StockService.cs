@@ -1,38 +1,31 @@
-﻿using StockTracking.Application.DTOs;
+﻿using AutoMapper;
+using StockTracking.Application.DTOs;
 using StockTracking.Application.Interfaces.Repositories;
-using StockTracking.Domain.Entities;
 using StockTracking.Application.Interfaces.Services;
+using StockTracking.Domain.Entities;
 namespace StockTracking.Application.Services
 {
     public class StockService : IStockService
     {
         private readonly IUnitOfWork _uow;
 
-        // Automapper kullanacağınız için DTO ve Entity dönüşümlerini o yapacaktır.
-        // Şimdilik manuel yapıyoruz.
+        private readonly IMapper _mapper;
 
-        public StockService(IUnitOfWork uow)
+        public StockService(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
-        // ---------------------------------------------------------------------
+       
         // 1. POST IN: Depoya Stok Girişi
-        // ---------------------------------------------------------------------
+    
         public async Task<StockMovement> AddStockInAsync(StockInRequest request)
         {
             // 1. Gerekli Kontroller (FluentValidation burada çalışmış olmalı)
 
             // 2. Yeni Stok Hareketi (StockMovement) kaydı oluştur
-            var movement = new StockMovement
-            {
-                ProductId = request.ProductId,
-                StoreId = request.StoreId,
-                Quantity = request.Quantity,
-                MovementType = "IN", // Giriş
-                ReferenceNumber = request.ReferenceNumber,
-                MovementDate = DateTime.UtcNow // İşlem zamanı
-            };
+            var movement = _mapper.Map<StockMovement>(request);
 
             await _uow.StockMovements.AddAsync(movement);
 
@@ -138,13 +131,13 @@ namespace StockTracking.Application.Services
             currentSummary.UpdatedDate = DateTime.UtcNow;
             _uow.StoreStocks.UpdateAsync(currentSummary);
 
-            // 6. Değişiklikleri Tek Bir Transaction içinde kaydet
-            // StockItem'ların güncellenmesi, yeni StockMovement ve StoreStock güncellemesi tek Transaction'da!
+         
+            // StockItem'ların güncellenmesi, yeni StockMovement ve StoreStock güncellemesi tek Transaction'da yapıldı
             await _uow.SaveChangesAsync();
 
             return movement;
         }
 
-        // ... Diğer metodlar: GET Ürün Bazında Stoklar, GET Stok Hareketleri (Filtreli)
+        
     }
 }

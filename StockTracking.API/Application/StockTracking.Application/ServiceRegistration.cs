@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoMapper;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using StockTracking.Application.Interfaces.Services;
 using StockTracking.Application.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+
 
 namespace StockTracking.Application
 {
@@ -14,6 +13,20 @@ namespace StockTracking.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IStockService, StockService>();
+
+            // AutoMapper konfigurasyonu
+            var assembly = Assembly.GetExecutingAssembly();
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                // GeneralProfile sınıfınız dahil olmak üzere bu Assembly'deki tüm profilleri bulur.
+                mc.AddMaps(assembly);
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
+            //Fluent Validation servislerini ekliyoruz
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             return services;
         }
     }
