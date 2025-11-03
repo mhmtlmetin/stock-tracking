@@ -138,6 +138,13 @@ namespace StockTracking.Application.Services
             return movement;
         }
 
-        
+        public async Task<StoreStock> GetCurrentStockAsync(int productId, int storeId)
+        {
+            // StoreStock tablosu zaten anlık stoku tuttuğu için hızlıca sorgulayabiliriz.
+            var currentStock = await _uow.StoreStocks.GetByProductAndStoreAsync(productId, storeId);
+
+            // Eğer kayıt yoksa, null döndür (Controller'da 0 stok olarak yorumlanacaktır)
+            return currentStock;
+        }
     }
 }

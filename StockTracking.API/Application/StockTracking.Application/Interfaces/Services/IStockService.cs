@@ -12,6 +12,7 @@ namespace StockTracking.Application.Interfaces.Services
     {
         Task<StockMovement> AddStockInAsync(StockInRequest request);
         Task<StockMovement> AddStockOutFifoAsync(StockOutRequest request);
-     
+        Task<StoreStock> GetCurrentStockAsync(int productId, int storeId);
+
     }
 }

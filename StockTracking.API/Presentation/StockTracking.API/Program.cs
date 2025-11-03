@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using StockTracking.Application;
 using StockTracking.Infrastructure;
 using System.Text;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
