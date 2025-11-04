@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import { 
     Box, Typography, Button, CircularProgress, Alert, 
-    TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton,
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import GenericDataTable,{ type ColumnConfig } from '../../../components/GenericDataTable';
 import ProductFormModal from './ProductsFormModal';
 
@@ -140,7 +139,7 @@ const ProductsScreen: React.FC = () => {
                 currentProduct={selectedProduct}
             />
 
-            {/* ✨ SİLME ONAYI DIALOG'U (KUTUCUĞU) */}
+            {/* SİLME ONAYI DIALOG'U */}
             <Dialog
                 open={!!productToDelete} // productToDelete varsa dialogu aç
                 onClose={handleCancelDelete}

@@ -1,11 +1,10 @@
 import { baseApi } from "../../../app/api/baseApi";
 
-// 1. Ürün Veri Modeli
 export interface Product {
   id: number;
   name: string;
   code: string;
-  description:string
+  description: string;
 }
 // Yeni: Ürün ekleme/güncelleme tipi
 export type ProductPayload = Omit<Product, "id">;
@@ -16,6 +15,15 @@ export const productsApi = baseApi.injectEndpoints({
     // Tüm ürünleri çekme endpoint'i
     getProducts: builder.query<Product[], void>({
       query: () => "/products",
+      providesTags: (result) =>
+        result
+          ? [
+              // Tek tek ürünler için ID bazlı etiketler
+              ...result.map(({ id }) => ({ type: "Products" as const, id })),
+              // TÜM LİSTE için kullanılan ana etiket
+              { type: "Products", id: "LIST" },
+            ]
+          : [{ type: "Products", id: "LIST" }],
     }),
 
     //Yeni ürün ekle
@@ -30,17 +38,17 @@ export const productsApi = baseApi.injectEndpoints({
     }),
 
     //ürünü güncelle
-    updateProduct: builder.mutation<
-      Product,
-      UpdateProductPayload
-    >({
+    updateProduct: builder.mutation<Product, UpdateProductPayload>({
       query: (productData) => ({
-        url: '/Products',
+        url: "/Products",
         method: "PUT",
         body: productData,
       }),
       // Güncelleme sonrası sadece ilgili ürünü yenile
-      invalidatesTags: (result, error, { id }) => [{ type: "Products", id }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Products", id },
+        { type: "Products", id: "LIST" },
+      ],
     }),
 
     // Ürün sil
@@ -50,7 +58,10 @@ export const productsApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       // Silme sonrası listeyi yenile
-      invalidatesTags: [{ type: "Products", id: "LIST" }],
+      invalidatesTags: (result, error, id) => [
+        { type: "Products", id: "LIST" },
+        { type: "Products", id },
+      ],
     }),
   }),
 
