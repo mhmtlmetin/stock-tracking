@@ -71,5 +71,21 @@ namespace StockTracking.API.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var productToDelete = await _uow.Products.GetByIdAsync(id);
+
+            if (productToDelete == null)
+            {
+                return NotFound("Silinecek ürün bulunamadı.");
+            }
+
+            await _uow.Products.DeleteAsync(productToDelete);
+            await _uow.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
