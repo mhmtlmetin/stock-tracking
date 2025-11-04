@@ -145,5 +145,16 @@ namespace StockTracking.Application.Services
             if (currentStock == null) return null; 
             return _mapper.Map<CurrentStockResponse>(currentStock);
         }
+
+        public async Task<List<ProductStoreStockResponse>> GetStocksByProductAsync(int productId)
+        {
+            // 1. Ürüne ait tüm StoreStock kayıtlarını çek
+            // Include(ss => ss.Store) ile Store bilgisini de Eager Loading ile yüklüyoruz.
+            var storeStocks = await _uow.StoreStocks.GetStocksByProductIdWithStoreAsync(productId);
+
+            var response = _mapper.Map<List<ProductStoreStockResponse>>(storeStocks);
+
+            return response;
+        }
     }
 }

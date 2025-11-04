@@ -20,5 +20,12 @@ namespace StockTracking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(ss =>
                     ss.ProductId == productId && ss.StoreId == storeId);
         }
+        public async Task<List<StoreStock>> GetStocksByProductIdWithStoreAsync(int productId)
+        {
+            return await _dbSet
+                .Include(ss => ss.Store)
+                .Where(ss => ss.ProductId == productId && ss.CurrentStock > 0)
+                .ToListAsync();
+        }
     }
 }

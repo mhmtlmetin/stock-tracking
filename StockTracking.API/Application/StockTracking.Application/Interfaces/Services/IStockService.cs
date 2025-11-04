@@ -1,10 +1,5 @@
 ﻿using StockTracking.Application.DTOs;
 using StockTracking.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockTracking.Application.Interfaces.Services
 {
@@ -13,6 +8,7 @@ namespace StockTracking.Application.Interfaces.Services
         Task<StockMovement> AddStockInAsync(StockInRequest request);
         Task<StockMovement> AddStockOutFifoAsync(StockOutRequest request);
         Task<CurrentStockResponse> GetCurrentStockAsync(int productId, int storeId);
+        Task<List<ProductStoreStockResponse>> GetStocksByProductAsync(int productId);
 
     }
 }

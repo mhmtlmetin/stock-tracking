@@ -11,6 +11,7 @@ namespace StockTracking.Application.Interfaces.Repositories
     {
         // Ürün ve mağaza bazında stoğu hızlıca çekme metodu
         Task<StoreStock> GetByProductAndStoreAsync(int productId, int storeId);
+        Task<List<StoreStock>> GetStocksByProductIdWithStoreAsync(int productId);
     }
 
 }

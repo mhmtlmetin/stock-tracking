@@ -39,18 +39,18 @@ namespace StockTracking.API.Controllers
             }
         }
 
-   
-        [HttpGet("current")]
-        public async Task<IActionResult> GetCurrentStock(int productId, int storeId)
+        [HttpGet("product/{productId}")]
+        public async Task<IActionResult> GetStocksByProduct(int productId)
         {
-            var stock = await _stockService.GetCurrentStockAsync(productId, storeId);
 
-            if (stock == null)
+            var stocks = await _stockService.GetStocksByProductAsync(productId);
+
+            if (stocks == null || stocks.Count == 0)
             {
-                return Ok(new { ProductId = productId, StoreId = storeId, CurrentStock = 0, Message = "Stok kaydı bulunamadı. Anlık stok sıfırdır." });
+                return Ok(new List<ProductStoreStockResponse>());
             }
 
-            return Ok(stock);
+            return Ok(stocks);
         }
     }
 }
