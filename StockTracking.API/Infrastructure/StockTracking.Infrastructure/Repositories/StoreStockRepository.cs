@@ -14,8 +14,11 @@ namespace StockTracking.Infrastructure.Repositories
         public async Task<StoreStock> GetByProductAndStoreAsync(int productId, int storeId)
         {
             // Ürün ve mağaza kombinasyonunu kullanarak hızlıca stok kaydını çeker.
-            return await _dbSet.FirstOrDefaultAsync(ss =>
-                ss.ProductId == productId && ss.StoreId == storeId);
+            return await _dbSet
+                .Include(ss => ss.Product) 
+                .Include(ss => ss.Store)   
+                .FirstOrDefaultAsync(ss =>
+                    ss.ProductId == productId && ss.StoreId == storeId);
         }
     }
 }

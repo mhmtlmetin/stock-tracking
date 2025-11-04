@@ -39,6 +39,11 @@ namespace StockTracking.Application.Mapping
 
             // GET Stok Hareketleri (Entity -> Response DTO)
             CreateMap<StockMovement, StockMovementResponse>();
+
+            //GET Store-Stock bilgileri
+            CreateMap<StoreStock, CurrentStockResponse>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.Store.Name));
         }
     }
 }
