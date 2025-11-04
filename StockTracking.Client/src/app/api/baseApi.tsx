@@ -28,6 +28,6 @@ export const baseApi = createApi({
   reducerPath: 'api', // Redux store'daki adı (örn: state.api)
   baseQuery: baseQuery,
   // Tüm endpoint'ler için merkezi tag tanımlaması (Caching için gereklidir)
-  tagTypes: ['Products', 'stores', 'stockinouts','stokcmovements'], 
+  tagTypes: ['Products', 'Stores', 'stockinouts','stokcmovements'], 
   endpoints: () => ({}), // Bu boş kalır, endpoint'ler inject edilir.
 });
