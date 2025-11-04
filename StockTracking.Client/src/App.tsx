@@ -14,11 +14,9 @@ const App = () => {
       <Routes>
         
         <Route path="/login" element={<LoginPage />} />
-
         {/* Korumalı Route'lar */}
         <Route element={<ProtectedRoutes />}>
           <Route element={<Layout />}>
-           
             <Route path="/products" element={<ProductPage />} />
             <Route path="/stores" element={<StorePage />} />
             <Route path="/stock-io" element={<StockInOutPage />} /> 

@@ -1,32 +1,65 @@
-import { baseApi } from "../../../app/api/baseApi"; 
+import { baseApi } from "../../../app/api/baseApi";
 
 // 1. Ürün Veri Modeli
 export interface Product {
-    id: number;
-    name: string;
-    code: string;
-  
+  id: number;
+  name: string;
+  code: string;
+  description:string
 }
-
+// Yeni: Ürün ekleme/güncelleme tipi
+export type ProductPayload = Omit<Product, "id">;
+export type UpdateProductPayload = Product;
 // 2. Products API Slice Tanımı
 export const productsApi = baseApi.injectEndpoints({
-    endpoints: (builder) => ({
-        // Tüm ürünleri çekme endpoint'i
-        getProducts: builder.query<Product[], void>({
-            query: () => '/products',
-        }),
-        
-        // Yeni ürün ekleme endpoint'i
-        createProduct: builder.mutation<Product, Omit<Product, 'id'>>({
-            query: (newProduct) => ({
-                url: '/products',
-                method: 'POST',
-                body: newProduct,
-            }),
-            // invalidateTags: ['Products'], // Ekleme sonrası listeyi yenilemek için
-        }),
+  endpoints: (builder) => ({
+    // Tüm ürünleri çekme endpoint'i
+    getProducts: builder.query<Product[], void>({
+      query: () => "/products",
     }),
-    overrideExisting: false,
+
+    //Yeni ürün ekle
+    createProduct: builder.mutation<Product, ProductPayload>({
+      query: (newProduct) => ({
+        url: "/products",
+        method: "POST",
+        body: newProduct,
+      }),
+      // Ekleme sonrası listeyi yenile
+      invalidatesTags: [{ type: "Products", id: "LIST" }],
+    }),
+
+    //ürünü güncelle
+    updateProduct: builder.mutation<
+      Product,
+      UpdateProductPayload
+    >({
+      query: (productData) => ({
+        url: '/Products',
+        method: "PUT",
+        body: productData,
+      }),
+      // Güncelleme sonrası sadece ilgili ürünü yenile
+      invalidatesTags: (result, error, { id }) => [{ type: "Products", id }],
+    }),
+
+    // Ürün sil
+    deleteProduct: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: "DELETE",
+      }),
+      // Silme sonrası listeyi yenile
+      invalidatesTags: [{ type: "Products", id: "LIST" }],
+    }),
+  }),
+
+  overrideExisting: false,
 });
 
-export const { useGetProductsQuery, useCreateProductMutation } = productsApi;
+export const {
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productsApi;

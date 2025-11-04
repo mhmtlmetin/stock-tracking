@@ -1,36 +1,83 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { 
     Box, Typography, Button, CircularProgress, Alert, 
-    TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton 
+    TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import GenericDataTable,{ type ColumnConfig } from '../../../components/GenericDataTable';
+import ProductFormModal from './ProductsFormModal';
 
 // RTK Query Hook'unu import ediyoruz
-import { useGetProductsQuery, type Product } from './productsApi'; 
+import { useGetProductsQuery,
+    useDeleteProductMutation,
+     type Product,
+    } from './productsApi'; 
 
-const tableHeaders = [
-    { label: 'Ürün Adı', field: 'name' },
-    { label: 'Stok Kodu', field: 'code' },
-    { label: 'İşlemler', field: 'actions' },
-];
+const productColumns: ColumnConfig<Product>[] = [
+        { label: 'Ürün Adı', field: 'name' },
+        { label: 'Stok Kodu', field: 'code' },
+         { label: 'Açıklama', field: 'description' },
+        { label: 'İşlemler', field: 'actions', align: 'left' },
+    ];
 
 const ProductsScreen: React.FC = () => {
-    // Ürünleri çekmek için RTK Query hook'unu kullanma
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null); // Düzenlenecek ürün
+    const [productToDelete, setProductToDelete] = useState<Product | null>(null); // Silinecek ürün
+
+      // Ürünleri çekmek için RTK Query hook'unu kullanma
     const { data: products, isLoading, isError, error } = useGetProductsQuery();
+    //ürünleri silmek için RTK Query hook'unu kullanma
+    const [deleteProduct, { isLoading: isDeleting, isError: isDeleteError, error: deleteError }] = useDeleteProductMutation();
+    
+    
 
-    // Yeni Ürün Ekle işlemi
+    // MODAL İŞLEMLERİ (Ekleme ve Düzenleme)
     const handleNewProductClick = () => {
-        alert('Yeni Ürün Ekleme Formu açılacak...');
+        setSelectedProduct(null); // Yeni ürün modu
+        setIsModalOpen(true);
     };
 
-    // Düzenleme işlemi
     const handleEdit = (product: Product) => {
-        alert(`Ürün Düzenle: ${product.name}`);
+        setSelectedProduct(product); // Düzenlenecek ürünü ayarla
+        setIsModalOpen(true);
     };
 
-    // Silme işlemi
-    const handleDelete = (product: Product) => {
-        alert(`Ürün Sil: ${product.name}`);
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedProduct(null);
+    };
+
+
+    
+   // 1. Silme Butonuna Basıldığında Onay Kutusu Açılır
+    const handleDeleteConfirmation = (product: Product) => {
+        setProductToDelete(product); 
+    };
+
+    // 2. İptal Butonuna Basıldığında Onay Kutusu Kapanır
+    const handleCancelDelete = () => {
+        setProductToDelete(null); 
+    };
+
+    // 3. Silme Onaylandığında İşlem Başlatılır
+    const handleConfirmDelete = async () => {
+        if (productToDelete) {
+            try {
+                // Silme işlemini başlat (ID'yi gönder)
+                await deleteProduct(productToDelete.id).unwrap();
+                
+                // Başarılı olursa onay diyalogunu kapat
+                setProductToDelete(null);
+                // RTK Query Cache Invalidasyon sayesinde tablo otomatik yenilenecek.
+
+            } catch (err) {
+                // Hata oluşursa konsola yaz ve diyalogu kapat (Hata Alert'ı JSX'te görünecek)
+                console.error('Silme işlemi başarısız', err);
+                setProductToDelete(null); 
+            }
+        }
     };
 
     if (isLoading) {
@@ -60,7 +107,7 @@ const ProductsScreen: React.FC = () => {
             {/* Sayfa Başlığı ve Yeni Ürün Ekle Butonu */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h4" component="h1">
-                    Ürünler Yönetimi ({products?.length || 0} Ürün)
+                    Ürünler  ({products?.length || 0} Ürün)
                 </Typography>
                 <Button 
                     variant="contained" 
@@ -70,57 +117,55 @@ const ProductsScreen: React.FC = () => {
                     Yeni Ürün Ekle
                 </Button>
             </Box>
+            {/* Silme Hatası Gösterimi */}
+            {isDeleteError && (
+                 <Alert severity="error" sx={{ mb: 2 }}>
+                    Silme işlemi başarısız oldu: 
+                    {(deleteError as any)?.data?.message || 'Lütfen tekrar deneyin.'}
+                </Alert>
+            )}
 
-            {/* Material-UI Tablo Yapısı */}
-            <TableContainer component={Paper} elevation={3}>
-                <Table sx={{ minWidth: 650 }} aria-label="Ürünler Tablosu">
-                    
-                    {/* Tablo Başlık (Header) */}
-                    <TableHead>
-                        <TableRow>
-                            {tableHeaders.map((header) => (
-                                <TableCell key={header.field}>
-                                    <Typography variant="h6" fontWeight="bold">
-                                        {header.label}
-                                    </Typography>
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    
-                    {/* Tablo İçeriği (Body) */}
-                    <TableBody>
-                        {products && products.map((product:any) => (
-                            <TableRow 
-                                key={product.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">{product.name}</TableCell>
-                                <TableCell>{product.code}</TableCell>
-                                <TableCell>
-                                    <IconButton onClick={() => handleEdit(product)} color="primary">
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleDelete(product)} color="error">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        
-                        {/* Veri Yoksa Mesaj */}
-                        {(!products || products.length === 0) && !isLoading && !isError && (
-                            <TableRow>
-                                <TableCell colSpan={5} align="center">
-                                    <Typography variant="subtitle1" sx={{ p: 2 }}>
-                                        Sistemde kayıtlı ürün bulunmamaktadır.
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+        <GenericDataTable<Product>
+                data={products || []}
+                columns={productColumns}
+                isLoading={isLoading}
+                onEdit={handleEdit}
+                onDelete={handleDeleteConfirmation}
+            />
+
+            {/* Ürün Ekle/Düzenle Modal'ı */}
+            <ProductFormModal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                currentProduct={selectedProduct}
+            />
+
+            {/* ✨ SİLME ONAYI DIALOG'U (KUTUCUĞU) */}
+            <Dialog
+                open={!!productToDelete} // productToDelete varsa dialogu aç
+                onClose={handleCancelDelete}
+            >
+                <DialogTitle id="alert-dialog-title">{"Ürün Silme Onayı"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        **{productToDelete?.name}** ({productToDelete?.code}) adlı ürünü silmek istediğinizden emin misiniz?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete} disabled={isDeleting}>
+                        İptal
+                    </Button>
+                    <Button 
+                        onClick={handleConfirmDelete} 
+                        color="error" 
+                        variant="contained" 
+                        disabled={isDeleting}
+                        autoFocus
+                    >
+                        {isDeleting ? <CircularProgress size={20} color="inherit" /> : 'Evet, Sil'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
