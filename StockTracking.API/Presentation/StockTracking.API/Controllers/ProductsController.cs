@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StockTracking.Application.DTOs;
 using StockTracking.Application.Interfaces.Repositories;
+using StockTracking.Application.Interfaces.Services;
 using StockTracking.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace StockTracking.API.Controllers
 {
@@ -12,39 +13,28 @@ namespace StockTracking.API.Controllers
     public class ProductsController : ControllerBase
     {
 
-        private readonly IUnitOfWork _uow; 
+        private readonly IProductService _productService;
         private readonly IMapper _mapper;
 
-        public ProductsController(IUnitOfWork uow, IMapper mapper)
+        public ProductsController(IProductService productService)
         {
-            _uow = uow;
-            _mapper = mapper;
+            _productService = productService;
         }
 
        
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CreateProductRequest request, CancellationToken cancellationToken = default)
         {
-            var product = _mapper.Map<Product>(request);
-
-            await _uow.Products.AddAsync(product);
-            await _uow.SaveChangesAsync(cancellationToken);
-
-            var response = _mapper.Map<ProductListResponse>(product);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
+            var response = await _productService.AddAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
 
        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _uow.Products.GetByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound("Ürün bulunamadı.");
-            }
-
-            var response = _mapper.Map<ProductListResponse>(product);
+            var response = await _productService.GetByIdAsync(id);
+            if (response == null) return NotFound("Ürün bulunamadı.");
             return Ok(response);
         }
 
@@ -52,8 +42,7 @@ namespace StockTracking.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetList()
         {
-            var products = await _uow.Products.GetAll().ToListAsync();
-            var response = _mapper.Map<List<ProductListResponse>>(products);
+            var response = await _productService.GetListAsync();
             return Ok(response);
         }
 
@@ -61,31 +50,29 @@ namespace StockTracking.API.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
         {
-            var existingProduct = await _uow.Products.GetByIdAsync(request.Id);
-            if (existingProduct == null) return NotFound("Güncellenecek ürün bulunamadı.");
-
-            _mapper.Map(request, existingProduct);
-
-            await _uow.Products.UpdateAsync(existingProduct);
-            await _uow.SaveChangesAsync(cancellationToken);
-
-            return NoContent();
+            try
+            {
+                await _productService.UpdateAsync(request, cancellationToken);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var productToDelete = await _uow.Products.GetByIdAsync(id);
-
-            if (productToDelete == null)
+            try
             {
-                return NotFound("Silinecek ürün bulunamadı.");
+                await _productService.DeleteAsync(id, cancellationToken);
+                return NoContent();
             }
-
-            await _uow.Products.DeleteAsync(productToDelete);
-            await _uow.SaveChangesAsync(cancellationToken);
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

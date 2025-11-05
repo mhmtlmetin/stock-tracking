@@ -7,7 +7,8 @@ namespace StockTracking.Application.Interfaces.Repositories
         // Okuma İşlemleri
         Task<T> GetByIdAsync(int id);
         IQueryable<T> GetAll(); // Linq sorgusu oluşturmak için IQueryable döndürülür.
-                                // Task<List<T>> GetAllAsync(); // Eğer direk listeye ihtiyacınız varsa
+
+        Task<List<T>> GetAllAsync();
 
         // Yazma İşlemleri
         Task<T> AddAsync(T entity);

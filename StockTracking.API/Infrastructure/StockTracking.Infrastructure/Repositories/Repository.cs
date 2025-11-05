@@ -2,7 +2,6 @@
 using StockTracking.Application.Interfaces.Repositories;
 using StockTracking.Domain.Entities;
 using StockTracking.Infrastructure.Context;
-
 namespace StockTracking.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
@@ -24,6 +23,12 @@ namespace StockTracking.Infrastructure.Repositories
         public IQueryable<T> GetAll()
         {
             return _dbSet.AsQueryable(); // Henüz veritabanına gitmez
+        }
+
+        public async Task<List<T>> GetAllAsync()
+        {
+            // Persistence katmanı EF Core'a bağımlı olduğu için ToListAsync'i burada kullanabiliriz.
+            return await _dbSet.ToListAsync();
         }
 
         // ...Diğer CRUD metotları
