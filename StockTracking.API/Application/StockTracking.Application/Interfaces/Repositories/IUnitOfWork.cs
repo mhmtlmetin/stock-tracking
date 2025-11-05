@@ -15,6 +15,6 @@ namespace StockTracking.Application.Interfaces.Repositories
         IStockItemRepository StockItems { get; }
 
         // Kaydedilmemiş tüm değişiklikleri veritabanına uygular.
-        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

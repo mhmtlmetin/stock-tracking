@@ -20,7 +20,7 @@ namespace StockTracking.Application.Services
        
         // 1. POST IN: Depoya Stok Girişi
     
-        public async Task<StockMovement> AddStockInAsync(StockInRequest request)
+        public async Task<StockMovement> AddStockInAsync(StockInRequest request, CancellationToken cancellationToken = default)
         {
             // 1. Gerekli Kontroller (FluentValidation burada çalışmış olmalı)
 
@@ -60,7 +60,7 @@ namespace StockTracking.Application.Services
             storeStock.UpdatedDate = DateTime.UtcNow;
 
             // 5. Değişiklikleri Tek Bir Transaction içinde kaydet
-            await _uow.SaveChangesAsync(); // StockMovement, StockItem ve StoreStock tek seferde kaydedilir.
+            await _uow.SaveChangesAsync(cancellationToken); // StockMovement, StockItem ve StoreStock tek seferde kaydedilir.
 
             return movement;
         }
@@ -68,7 +68,7 @@ namespace StockTracking.Application.Services
       
         // 2. POST OUT: Depodan Stok Çıkışı (FIFO)
         
-        public async Task<StockMovement> AddStockOutFifoAsync(StockOutRequest request)
+        public async Task<StockMovement> AddStockOutFifoAsync(StockOutRequest request, CancellationToken cancellationToken = default)
         {
             // 1. Stok Yeterliliği Kontrolü
             var currentSummary = await _uow.StoreStocks.GetByProductAndStoreAsync(request.ProductId, request.StoreId);
@@ -133,7 +133,7 @@ namespace StockTracking.Application.Services
 
          
             // StockItem'ların güncellenmesi, yeni StockMovement ve StoreStock güncellemesi tek Transaction'da yapıldı
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             return movement;
         }

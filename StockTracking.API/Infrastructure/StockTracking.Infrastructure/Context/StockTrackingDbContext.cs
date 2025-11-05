@@ -28,7 +28,7 @@ namespace StockTracking.Infrastructure.Context
             base.OnModelCreating(modelBuilder);
         }
 
-        public override int SaveChanges()
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
             //Burada CreatedDate ve UpdatedDate otomatik set ediliyor.
             var entries = ChangeTracker
@@ -47,7 +47,7 @@ namespace StockTracking.Infrastructure.Context
                 }
             }
 
-            return base.SaveChanges();
+            return await base.SaveChangesAsync();
         }
     }
 }

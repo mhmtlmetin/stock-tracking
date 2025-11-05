@@ -23,12 +23,12 @@ namespace StockTracking.API.Controllers
 
     
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] CreateStoreRequest request)
+        public async Task<IActionResult> Add([FromBody] CreateStoreRequest request, CancellationToken cancellationToken = default)
         {
             var store = _mapper.Map<Store>(request);
 
             await _uow.Stores.AddAsync(store);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             var response = _mapper.Map<StoreListResponse>(store); 
             return CreatedAtAction(nameof(GetById), new { id = store.Id }, response);
@@ -58,7 +58,7 @@ namespace StockTracking.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateStoreRequest request)
+        public async Task<IActionResult> Update([FromBody] UpdateStoreRequest request, CancellationToken cancellationToken)
         {
             var existingStore = await _uow.Stores.GetByIdAsync(request.Id);
             if (existingStore == null) return NotFound("Güncellenecek mağaza bulunamadı.");
@@ -66,20 +66,20 @@ namespace StockTracking.API.Controllers
             _mapper.Map(request, existingStore);
 
             await _uow.Stores.UpdateAsync(existingStore);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
       
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var storeToDelete = await _uow.Stores.GetByIdAsync(id);
             if (storeToDelete == null) return NotFound("Silinecek mağaza bulunamadı.");
 
             await _uow.Stores.DeleteAsync(storeToDelete);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

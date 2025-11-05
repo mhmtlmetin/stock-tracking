@@ -23,12 +23,12 @@ namespace StockTracking.API.Controllers
 
        
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] CreateProductRequest request)
+        public async Task<IActionResult> Add([FromBody] CreateProductRequest request, CancellationToken cancellationToken = default)
         {
             var product = _mapper.Map<Product>(request);
 
             await _uow.Products.AddAsync(product);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             var response = _mapper.Map<ProductListResponse>(product);
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
@@ -59,7 +59,7 @@ namespace StockTracking.API.Controllers
 
       
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateProductRequest request)
+        public async Task<IActionResult> Update([FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
         {
             var existingProduct = await _uow.Products.GetByIdAsync(request.Id);
             if (existingProduct == null) return NotFound("Güncellenecek ürün bulunamadı.");
@@ -67,13 +67,13 @@ namespace StockTracking.API.Controllers
             _mapper.Map(request, existingProduct);
 
             await _uow.Products.UpdateAsync(existingProduct);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var productToDelete = await _uow.Products.GetByIdAsync(id);
 
@@ -83,7 +83,7 @@ namespace StockTracking.API.Controllers
             }
 
             await _uow.Products.DeleteAsync(productToDelete);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

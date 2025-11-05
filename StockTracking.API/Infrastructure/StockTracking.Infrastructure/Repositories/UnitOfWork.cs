@@ -1,5 +1,6 @@
 ﻿using StockTracking.Application.Interfaces.Repositories;
 using StockTracking.Infrastructure.Context;
+using System.Threading;
 
 namespace StockTracking.Infrastructure.Repositories
 {
@@ -33,10 +34,10 @@ namespace StockTracking.Infrastructure.Repositories
         }
 
         // IUnitOfWork arayüzünden gelen SaveChangesAsync metodunun uygulanması
-        public async Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             // Tüm beklemedeki değişiklikler (Add, Update, Delete) tek bir işlemde kaydedilir.
-            return await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync(cancellationToken);
         }
 
         // Kaynakları temizlemek için burayı IDisposable yaptık.
