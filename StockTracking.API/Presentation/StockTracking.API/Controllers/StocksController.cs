@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StockTracking.Application.DTOs;
 using StockTracking.Application.Interfaces.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace StockTracking.API.Controllers
 {
@@ -53,11 +54,9 @@ namespace StockTracking.API.Controllers
         }
 
         [HttpGet("history")]
-        public async Task<IActionResult> GetAllStockMovements()
+        public async Task<IActionResult> GetAllStockMovements([FromQuery] StockMovementQuery query)
         {
-            var history = await _stockService.GetAllStockMovementsAsync();
-
-            // Hatta boş liste de olsa 200 Ok dönebiliriz.
+            var history = await _stockService.GetAllStockMovementsAsync(query);
             return Ok(history);
         }
     }

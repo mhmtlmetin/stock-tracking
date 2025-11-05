@@ -1,6 +1,7 @@
 ﻿
 
 using Microsoft.EntityFrameworkCore;
+using StockTracking.Application.DTOs;
 using StockTracking.Application.Interfaces.Repositories;
 using StockTracking.Domain.Entities;
 using StockTracking.Infrastructure.Context;
@@ -14,12 +15,32 @@ namespace StockTracking.Infrastructure.Repositories
         }
 
         // Tüm stok hareketlerini, ilgili ürün ve mağaza bilgileriyle birlikte tarih sırasına göre getirir.
-        public async Task<List<StockMovement>> GetAllMovementsWithDetailsAsync()
+        public async Task<List<StockMovement>> GetFilteredMovementsWithDetailsAsync(StockMovementQuery query)
         {
-            return await _dbSet
+            IQueryable<StockMovement> movements = _dbSet
                 .Include(m => m.Product)
-                .Include(m => m.Store)
-                .OrderByDescending(m => m.MovementDate) 
+                .Include(m => m.Store);
+
+            // 1. Ürün ID Filtresi
+            if (query.ProductId.HasValue)
+            {
+                movements = movements.Where(m => m.ProductId == query.ProductId.Value);
+            }
+
+            // 2. Başlangıç Tarihi Filtresi
+            if (query.StartDate.HasValue)
+            {
+                movements = movements.Where(m => m.MovementDate >= query.StartDate.Value.Date);
+            }
+
+            // 3. Bitiş Tarihi Filtresi
+            if (query.EndDate.HasValue)
+            {
+                movements = movements.Where(m => m.MovementDate <= query.EndDate.Value);
+            }
+
+            return await movements
+                .OrderByDescending(m => m.MovementDate)
                 .ToListAsync();
         }
 

@@ -9,7 +9,7 @@ namespace StockTracking.Application.Interfaces.Services
         Task<StockMovement> AddStockOutFifoAsync(StockOutRequest request);
         Task<CurrentStockResponse> GetCurrentStockAsync(int productId, int storeId);
         Task<List<ProductStoreStockResponse>> GetStocksByProductAsync(int productId);
-        Task<List<StockMovementResponse>> GetAllStockMovementsAsync();
+        Task<List<StockMovementResponse>> GetAllStockMovementsAsync(StockMovementQuery query);
 
     }
 }

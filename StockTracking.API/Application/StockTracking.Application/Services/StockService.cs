@@ -158,13 +158,12 @@ namespace StockTracking.Application.Services
             return response;
         }
 
-        public async Task<List<StockMovementResponse>> GetAllStockMovementsAsync()
+        //Filtreli stok hareketleri listesi
+        public async Task<List<StockMovementResponse>> GetAllStockMovementsAsync(StockMovementQuery query)
         {
-            // 1. Tüm Stok Hareketlerini Detaylarıyla birlikte çek
             var movements = await _uow.StockMovements
-                .GetAllMovementsWithDetailsAsync();
+                .GetFilteredMovementsWithDetailsAsync(query);
 
-            // 2. DTO listesine map et
             var response = _mapper.Map<List<StockMovementResponse>>(movements);
 
             return response;
