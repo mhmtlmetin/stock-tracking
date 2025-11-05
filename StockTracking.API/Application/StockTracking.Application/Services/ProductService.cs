@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using StockTracking.Application.DTOs;
+using StockTracking.Application.Helpers;
 using StockTracking.Application.Interfaces.Repositories;
 using StockTracking.Application.Interfaces.Services;
 using StockTracking.Domain.Entities;
@@ -10,15 +12,21 @@ namespace StockTracking.Application.Services
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+        private readonly IValidator<CreateProductRequest> _createProductValidator;
 
-        public ProductService(IUnitOfWork uow, IMapper mapper)
+        public ProductService(IUnitOfWork uow,
+            IMapper mapper, 
+            IValidator<CreateProductRequest> createProductValidator)
         {
             _uow = uow;
             _mapper = mapper;
+            _createProductValidator = createProductValidator;
         }
 
         public async Task<ProductListResponse> AddAsync(CreateProductRequest request, CancellationToken cancellationToken)
         {
+           await ValidationTool.ValidateAsync(_createProductValidator, request);
+
             var product = _mapper.Map<Product>(request);
 
             await _uow.Products.AddAsync(product);
@@ -29,6 +37,7 @@ namespace StockTracking.Application.Services
 
         public async Task UpdateAsync(UpdateProductRequest request, CancellationToken cancellationToken)
         {
+
             var existingProduct = await _uow.Products.GetByIdAsync(request.Id);
             if (existingProduct == null)
             {
