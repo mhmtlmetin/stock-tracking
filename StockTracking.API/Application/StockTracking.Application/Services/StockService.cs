@@ -146,6 +146,7 @@ namespace StockTracking.Application.Services
             return _mapper.Map<CurrentStockResponse>(currentStock);
         }
 
+        // 4. Ürüne Ait Tüm Mağaza Stokları
         public async Task<List<ProductStoreStockResponse>> GetStocksByProductAsync(int productId)
         {
             // 1. Ürüne ait tüm StoreStock kayıtlarını çek
@@ -153,6 +154,18 @@ namespace StockTracking.Application.Services
             var storeStocks = await _uow.StoreStocks.GetStocksByProductIdWithStoreAsync(productId);
 
             var response = _mapper.Map<List<ProductStoreStockResponse>>(storeStocks);
+
+            return response;
+        }
+
+        public async Task<List<StockMovementResponse>> GetAllStockMovementsAsync()
+        {
+            // 1. Tüm Stok Hareketlerini Detaylarıyla birlikte çek
+            var movements = await _uow.StockMovements
+                .GetAllMovementsWithDetailsAsync();
+
+            // 2. DTO listesine map et
+            var response = _mapper.Map<List<StockMovementResponse>>(movements);
 
             return response;
         }

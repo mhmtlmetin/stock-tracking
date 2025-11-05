@@ -49,6 +49,11 @@ namespace StockTracking.Application.Mapping
             CreateMap<StoreStock, ProductStoreStockResponse>()
             .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.Store.Name))
             .ForMember(dest => dest.StoreCode, opt => opt.MapFrom(src => src.Store.Code));
+
+            //StockMovement -> StockMovementResponse
+            CreateMap<StockMovement, StockMovementResponse>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.Store.Name));
         }
     }
 }

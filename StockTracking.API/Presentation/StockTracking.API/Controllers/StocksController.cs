@@ -42,7 +42,6 @@ namespace StockTracking.API.Controllers
         [HttpGet("product/{productId}")]
         public async Task<IActionResult> GetStocksByProduct(int productId)
         {
-
             var stocks = await _stockService.GetStocksByProductAsync(productId);
 
             if (stocks == null || stocks.Count == 0)
@@ -51,6 +50,15 @@ namespace StockTracking.API.Controllers
             }
 
             return Ok(stocks);
+        }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetAllStockMovements()
+        {
+            var history = await _stockService.GetAllStockMovementsAsync();
+
+            // Hatta boş liste de olsa 200 Ok dönebiliriz.
+            return Ok(history);
         }
     }
 }
