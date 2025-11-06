@@ -6,11 +6,12 @@ import StorePage from "./features/pages/stores/StorePage";
 import StockInOutPage from "./features/pages/stockInOut/StockInOutPage";
 import StockMovementPage from "./features/pages/stockMovements/StockMovementPage";
 import ProtectedRoutes from "./features/pages/ProtectedRoutes"
-
+import ErrorBoundary from './components/ErrorBoundary';
 
 
 const App = () => {
   return (
+    <ErrorBoundary>
       <Routes>
         
         <Route path="/login" element={<LoginPage />} />
@@ -29,6 +30,7 @@ const App = () => {
         
         <Route path="*" element={<h2>404 - Sayfa Bulunamadı</h2>} />
       </Routes>
+      </ErrorBoundary>
   );
 };
 
