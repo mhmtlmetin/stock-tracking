@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockTracking.Application.DTOs;
@@ -11,6 +12,7 @@ namespace StockTracking.API.Controllers
     
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StoresController : ControllerBase
     {
 

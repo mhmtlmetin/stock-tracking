@@ -45,6 +45,7 @@ builder.Services.AddAuthentication(options =>
          Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
      };
  });
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -55,6 +56,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAuthorization();
 
 app.MapControllers();

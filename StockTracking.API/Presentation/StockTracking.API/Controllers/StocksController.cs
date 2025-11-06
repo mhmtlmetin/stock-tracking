@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StockTracking.Application.DTOs;
 using StockTracking.Application.Interfaces.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -7,6 +8,7 @@ namespace StockTracking.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StocksController : ControllerBase
     {
         private readonly IStockService _stockService;
